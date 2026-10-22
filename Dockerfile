@@ -36,12 +36,16 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 # Install production dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+# Create .env from .env.example if missing
+RUN cp .env.example .env
+
 # Create SQLite database file as default fallback
 RUN mkdir -p database && touch database/database.sqlite
 
 # Set proper ownership and permissions
-RUN chown -R www-data:www-data storage bootstrap/cache database \
-    && chmod -R 775 storage bootstrap/cache database
+RUN chown -R www-data:www-data storage bootstrap/cache database .env \
+    && chmod -R 775 storage bootstrap/cache database \
+    && chmod 664 .env
 
 # Setup entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
